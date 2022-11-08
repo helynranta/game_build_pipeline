@@ -8,11 +8,6 @@ runs:
   using: 'composite'
   steps:
     - uses: actions/checkout@v3
-      name: pull sources
-      with:
-        lfs: true
-
-    - uses: actions/checkout@v3
       name: pull vcpkg
       with:
         repository: 'microsoft/vcpkg'
