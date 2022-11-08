@@ -1,5 +1,9 @@
 name: 'game build'
 description: 'generic build process for a game'
+inputs:
+  PAT:
+    description: 'personal access token for accessing private repos'
+    required: true
 runs:
   using: 'composite'
   steps:
@@ -36,7 +40,7 @@ runs:
     - uses: lerppana/git-credential-approve@v1
       name: setup credentials for private vcpkg registry
       with:
-        personal-access-token: ${{ secrets.PAT }}
+        personal-access-token: ${{ inputs.PAT }}
         path: 'lerppana/vcpkg-registry'
 
     - name: bootstrap vcpkg
@@ -52,18 +56,18 @@ runs:
         -storepasswordincleartext
         -name "GitHub"
         -username "lerppana"
-        -password "${{ secrets.PAT }}"
+        -password "${{ inputs.PAT }}"
 
     - name: 'setup nuget apikey'
       shell: 'bash'
       run: >
         `./vcpkg/vcpkg fetch nuget | tail -n 1`
-        setapikey "${{ secrets.PAT }}" -Source "https://nuget.pkg.github.com/lerppana/index.json"
+        setapikey "${{ inputs.PAT }}" -Source "https://nuget.pkg.github.com/lerppana/index.json"
 
     - name: cmake config
       working-directory: ${{ github.workspace }}
       env:
-        GITHUB_AUTHORIZATION_TOKEN: '${{ secrets.PAT }}'
+        GITHUB_AUTHORIZATION_TOKEN: '${{ inputs.PAT }}'
       run: |
         cmake -G "${{ matrix.generator }}" -DCMAKE_BUILD_TYPE=Release -B build -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake -D CMAKE_WIN32_EXECUTABLE=True
 
